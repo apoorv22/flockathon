@@ -1,1 +1,0 @@
-oauth_token=O2500vpNa1kREbULAb0KZ2ov22zQYZ3YvM2BVAJP&oauth_token_secret=TgEyThnEWook9TAJx0kyU3mnIrzomuE4rCqpRVfK&oauth_callback_confirmed=true
