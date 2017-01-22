@@ -51,15 +51,16 @@ flock.events.on('app.install', function(event) {
 //receives user's slash command
 flock.events.on('client.slashCommand', function(event) {
     var  filter  =   {
-        pagesize: 1,        //getting thw top answer
+        pagesize: 1,        //getting th top answer based on relevance
         q: event.text,
         site: 'stackoverflow',
         key: 'RAJDTo7jE4C8wZIkRrsetQ((',
         sort:   'relevance',
-        order:   'desc'
+        order:   'desc',
+        filter: '!9YdnSIN18'
     };
     context.search.advanced(filter,  function(err,  results) {
-        var ids = createList(results, "question_id");  
+        var question_ids = createList(results, "question_id");  
         if  (err)  throw  err;
 
           
@@ -85,36 +86,39 @@ flock.events.on('client.slashCommand', function(event) {
 
             context.answers.answers(filter3, function(err, ans) {
                 if  (err)  throw  err;
-
-                var codifiedAnswer = ans.items[0].body.replace(/<pre>/g, "<pre><i>");   //parsing to stylize code in answer
+                var codifiedQuestion = "<i>" + results.items[0].body.replace(/<pre>/g, "<pre><i>")
+                codifiedQuestion = codifiedQuestion.replace(/<\/pre>/g, "</i></pre>").concat("</i>".concat("\n<u><strong>Top rated answer :(" + ans.items[0].score + " votes)</strong></u>\n"));
+                var codifiedAnswer = ans.items[0].body.replace(/<pre>/g, "<pre><i>");   //parsing to stylize code part in response
                 codifiedAnswer = codifiedAnswer.replace(/<\/pre>/g, "</i></pre>");
                 var replacedQuery = event.text.replace(/ /g, "-");
 
-                //adding other answers link in answer 
+                //adding other answers link in response
                 if (ans_ids.length > 1) {
                     codifiedAnswer = codifiedAnswer.concat("<p><strong>Other answers : </strong></p>\n");
                 }
                 if (ans_ids[1]) {
-                    var link1 = "http://stackoverflow.com/questions/" + ids[0] + "/" + replacedQuery + "/" + ans_ids[1] + "#" + ans_ids[1];
-                    codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link1 + "'>" + link1 + "</a></p>\n");
+                    var link1 = "http://stackoverflow.com/questions/" + question_ids[0] + "/" + replacedQuery + "/" + ans_ids[1] + "#" + ans_ids[1];
+                    codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link1 + "'>" + link1 + "</a>(" + ans.items[1].score + " votes)</p>\n");
                 }
                 if (ans_ids[2]) {
-                    var link2 = "http://stackoverflow.com/questions/" + ids[0] + "/" + replacedQuery + "/" + ans_ids[2] + "#" + ans_ids[2];
-                    codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link2 + "'>" + link2 + "</a></p>\n");
+                    var link2 = "http://stackoverflow.com/questions/" + question_ids[0] + "/" + replacedQuery + "/" + ans_ids[2] + "#" + ans_ids[2];
+                    codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link2 + "'>" + link2 + "</a>(" + ans.items[2].score + " votes)</p>\n");
                 }
+                var finalResult = codifiedQuestion.concat(codifiedAnswer);
+                console.log(finalResult);
                 var json = {
                     "to": event.userId,
-                    "text": ans.items[0].title,
+                    "text": "Most relevant question for your query:\n" + ans.items[0].title,
                     "token": botToken,
                     "attachments": [{
-                        "title": ans.items[0].title,
+                        "title": "Most relevant question:\n" + ans.items[0].title,
                         "description": "(Answers powered by StackOverflow)",
-                        "views": {"flockml": codifiedAnswer}
+                        "views": {"flockml": finalResult}
                     }]
                 };
                 flock.callMethod('chat.sendMessage', botToken, json);
             }, ans_ids);
-        }, ids);
+        }, question_ids);
     });
 });
 
