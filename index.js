@@ -20,6 +20,7 @@ flock.setAppId(config.appId);
 flock.setAppSecret(config.appSecret);
 
 var app = express();
+var botToken = "500cd660-2032-4a4a-9514-a7c138093336";
 
 // Listen for events on /events, and verify event tokens using the token verifier.
 app.use(flock.events.tokenVerifier);
@@ -46,10 +47,11 @@ flock.events.on('app.install', function(event) {
     tokens[event.userId] = event.token;
 });
 
+
 //receives user's slash command
 flock.events.on('client.slashCommand', function(event) {
     var  filter  =   {
-        pagesize: 1,
+        pagesize: 1,        //getting thw top answer
         q: event.text,
         site: 'stackoverflow',
         key: 'RAJDTo7jE4C8wZIkRrsetQ((',
@@ -62,7 +64,7 @@ flock.events.on('client.slashCommand', function(event) {
 
           
         var  filter2  =   {
-            pagesize: 3,
+            pagesize: 3,        //getting top 3 answers
             site: 'stackoverflow',
             key: 'RAJDTo7jE4C8wZIkRrsetQ((',
             sort:   'votes',
@@ -72,9 +74,8 @@ flock.events.on('client.slashCommand', function(event) {
         context.questions.answers(filter2, function(err,  answersIds) {  
             if  (err)  throw  err;
             var ans_ids = createList(answersIds, "answer_id");
-            console.log(ans_ids);  
             var  filter3  =   {
-                pagesize: 3,
+                pagesize: 3,    //getting top 3 answers
                 site: 'stackoverflow',
                 key: 'RAJDTo7jE4C8wZIkRrsetQ((',
                 sort:   'votes',
@@ -85,9 +86,11 @@ flock.events.on('client.slashCommand', function(event) {
             context.answers.answers(filter3, function(err, ans) {
                 if  (err)  throw  err;
 
-                var codifiedAnswer = ans.items[0].body.replace(/<pre>/g, "<pre><i>");
+                var codifiedAnswer = ans.items[0].body.replace(/<pre>/g, "<pre><i>");   //parsing to stylize code in answer
                 codifiedAnswer = codifiedAnswer.replace(/<\/pre>/g, "</i></pre>");
                 var replacedQuery = event.text.replace(/ /g, "-");
+
+                //adding other answers link in answer 
                 if (ans_ids.length > 1) {
                     codifiedAnswer = codifiedAnswer.concat("<p><strong>Other answers : </strong></p>\n");
                 }
@@ -99,24 +102,20 @@ flock.events.on('client.slashCommand', function(event) {
                     var link2 = "http://stackoverflow.com/questions/" + ids[0] + "/" + replacedQuery + "/" + ans_ids[2] + "#" + ans_ids[2];
                     codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link2 + "'>" + link2 + "</a></p>\n");
                 }
-                console.log(codifiedAnswer);
                 var json = {
-                    "to": event.chat,
+                    "to": event.userId,
                     "text": ans.items[0].title,
-                    "token": tokens[event.userId],
+                    "token": botToken,
                     "attachments": [{
                         "title": ans.items[0].title,
-                        "description": "(Answers powered by StackExchange)",
+                        "description": "(Answers powered by StackOverflow)",
                         "views": {"flockml": codifiedAnswer}
                     }]
                 };
-                flock.callMethod('chat.sendMessage', tokens[event.userId], json);
+                flock.callMethod('chat.sendMessage', botToken, json);
             }, ans_ids);
-
         }, ids);
-
     });
-
 });
 
 // delete tokens on app.uninstall
