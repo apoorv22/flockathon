@@ -50,8 +50,8 @@ flock.events.on('app.install', function(event) {
 
 //receives user's slash command
 flock.events.on('client.slashCommand', function(event) {
-    var  filter  =   {
-        pagesize: 1,        //getting th top answer based on relevance
+    var  filter  =   {  
+        pagesize: 1,        //getting the top answer based on relevance
         q: event.text,
         site: 'stackoverflow',
         key: 'RAJDTo7jE4C8wZIkRrsetQ((',
@@ -105,7 +105,6 @@ flock.events.on('client.slashCommand', function(event) {
                     codifiedAnswer = codifiedAnswer.concat("<p><a href='" + link2 + "'>" + link2 + "</a>(" + ans.items[2].score + " votes)</p>\n");
                 }
                 var finalResult = codifiedQuestion.concat(codifiedAnswer);
-                console.log(finalResult);
                 var json = {
                     "to": event.userId,
                     "text": "Most relevant question for your query:\n" + ans.items[0].title,
