@@ -6,7 +6,8 @@
 2.Clone the code from github by 
 ```git@github.com:apoorv22/flockathon.git 
    cd flockathon
-   npm install```
+   npm install
+   ```
 
 3.	install package stackexchange (https://www.npmjs.com/package/stackexchange)
 	```npm install stackexchange```
