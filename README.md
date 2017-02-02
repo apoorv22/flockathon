@@ -16,7 +16,7 @@ npm install
 
 4.Run the app using ```node index.js```
 
-Workflow 
+## Workflow 
 
   Open flock application,from search bar type 'Split-It' and click in the bot for the app,type command ```/ask``` followed by your      query.
 
