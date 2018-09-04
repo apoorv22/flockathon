@@ -12,7 +12,7 @@ npm install
    ```
 3.Install package stackexchange (https://www.npmjs.com/package/stackexchange)
 
-	`npm install stackexchange`
+	npm install stackexchange
 
 4.Run the app using `node index.js`
 
